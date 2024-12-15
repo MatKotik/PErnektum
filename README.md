@@ -52,7 +52,7 @@
 </head>
 <body>
     <header>
-        <h1>Welcome to PErnektum</h1>
+        <h1>Welcome to PErnektum tiktok-developers-site-verification=guE3kNfNQZ6EZ4IKXbm9jJwCzaEK9GNT</h1>
     </header>
     <nav>
         <a href="#privacy-policy">Privacy Policy</a>
