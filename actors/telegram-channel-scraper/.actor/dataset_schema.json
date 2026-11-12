@@ -1,0 +1,178 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "channel": { "type": "string", "description": "Channel username without @." },
+            "channelTitle": { "type": ["string", "null"], "description": "Channel display name." },
+            "channelSubscribers": { "type": ["integer", "null"], "description": "Number of subscribers. Exact when \"Exact subscriber count\" is on, rounded otherwise." },
+            "channelIsVerified": { "type": ["boolean", "null"], "description": "True when Telegram shows the verified badge." },
+            "id": { "type": "integer", "description": "Post number inside the channel." },
+            "url": { "type": "string", "description": "Permanent link to the post." },
+            "date": { "type": ["string", "null"], "description": "Publication time in UTC, ISO 8601." },
+            "text": { "type": "string", "description": "Post text as plain text with line breaks. Empty for posts without text." },
+            "views": { "type": ["integer", "null"], "description": "View counter. Telegram rounds large numbers, for example 635K becomes 635000." },
+            "reactions": {
+                "type": "array",
+                "description": "Reactions with their counters.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "type": { "type": "string", "description": "emoji, custom or paid (Telegram Stars)." },
+                        "emoji": { "type": ["string", "null"] },
+                        "customEmojiId": { "type": ["string", "null"] },
+                        "count": { "type": ["integer", "null"] }
+                    }
+                }
+            },
+            "reactionsCount": { "type": "integer", "description": "Sum of all reaction counters." },
+            "isEdited": { "type": "boolean" },
+            "isUnsupported": { "type": "boolean", "description": "True when Telegram does not show the content of this post on the web, for example a live stream or paid media. Date, views and reactions are still filled in." },
+            "author": { "type": ["string", "null"], "description": "Author signature, when the channel shows it." },
+            "isForwarded": { "type": "boolean" },
+            "forwardedFrom": {
+                "type": ["object", "null"],
+                "description": "Source of a forwarded post.",
+                "properties": {
+                    "name": { "type": ["string", "null"] },
+                    "url": { "type": ["string", "null"] }
+                }
+            },
+            "replyTo": {
+                "type": ["object", "null"],
+                "description": "The post this one replies to.",
+                "properties": {
+                    "id": { "type": ["integer", "null"] },
+                    "url": { "type": ["string", "null"] },
+                    "author": { "type": ["string", "null"] },
+                    "text": { "type": ["string", "null"] }
+                }
+            },
+            "hashtags": { "type": "array", "items": { "type": "string" } },
+            "mentions": { "type": "array", "items": { "type": "string" } },
+            "links": { "type": "array", "description": "Link targets found in the text.", "items": { "type": "string" } },
+            "buttons": {
+                "type": "array",
+                "description": "Inline buttons under the post.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "text": { "type": "string" },
+                        "url": { "type": ["string", "null"] }
+                    }
+                }
+            },
+            "photos": { "type": "array", "description": "Photo URLs. Albums contain several.", "items": { "type": "string" } },
+            "videos": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "url": { "type": ["string", "null"], "description": "Direct video URL. Null for large videos that Telegram does not preview on the web." },
+                        "thumbnailUrl": { "type": ["string", "null"] },
+                        "duration": { "type": ["string", "null"] },
+                        "durationSeconds": { "type": ["integer", "null"] }
+                    }
+                }
+            },
+            "documents": {
+                "type": "array",
+                "description": "Attached files and audio tracks (name and size only).",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": { "type": ["string", "null"] },
+                        "info": { "type": ["string", "null"] },
+                        "isAudio": { "type": "boolean" }
+                    }
+                }
+            },
+            "voiceMessages": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "url": { "type": ["string", "null"] },
+                        "duration": { "type": ["string", "null"] },
+                        "durationSeconds": { "type": ["integer", "null"] }
+                    }
+                }
+            },
+            "poll": {
+                "type": ["object", "null"],
+                "properties": {
+                    "question": { "type": "string" },
+                    "type": { "type": ["string", "null"] },
+                    "voters": { "type": ["integer", "null"] },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": { "type": "string" },
+                                "percent": { "type": ["integer", "null"] }
+                            }
+                        }
+                    }
+                }
+            },
+            "linkPreview": {
+                "type": ["object", "null"],
+                "properties": {
+                    "url": { "type": ["string", "null"] },
+                    "siteName": { "type": ["string", "null"] },
+                    "title": { "type": ["string", "null"] },
+                    "description": { "type": ["string", "null"] },
+                    "imageUrl": { "type": ["string", "null"] }
+                }
+            },
+            "mediaTypes": { "type": "array", "description": "Kinds of attachments: photo, video, document, audio, voice, poll, sticker, location.", "items": { "type": "string" } },
+            "markdown": { "type": "string", "description": "Post text as Markdown. Present when \"Add Markdown version of the text\" is on." },
+            "html": { "type": "string", "description": "Post text as HTML. Present when \"Add original HTML of the text\" is on." },
+            "matchedKeywords": { "type": "array", "description": "Keywords found in this post. Present when keywords were set.", "items": { "type": "string" } },
+            "scrapedAt": { "type": "string", "description": "When the post was read, UTC, ISO 8601." }
+        },
+        "required": ["channel", "id", "url"]
+    },
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "description": "One row per post with the most used fields.",
+            "transformation": {
+                "fields": ["channel", "date", "text", "views", "reactionsCount", "mediaTypes", "url"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "channel": { "label": "Channel", "format": "text" },
+                    "date": { "label": "Published", "format": "date" },
+                    "text": { "label": "Text", "format": "text" },
+                    "views": { "label": "Views", "format": "number" },
+                    "reactionsCount": { "label": "Reactions", "format": "number" },
+                    "mediaTypes": { "label": "Attachments", "format": "array" },
+                    "url": { "label": "Post", "format": "link" }
+                }
+            }
+        },
+        "channels": {
+            "title": "Channel details",
+            "description": "Channel name, subscribers and verification next to each post.",
+            "transformation": {
+                "fields": ["channel", "channelTitle", "channelSubscribers", "channelIsVerified", "id", "date", "url"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "channel": { "label": "Channel", "format": "text" },
+                    "channelTitle": { "label": "Title", "format": "text" },
+                    "channelSubscribers": { "label": "Subscribers", "format": "number" },
+                    "channelIsVerified": { "label": "Verified", "format": "boolean" },
+                    "id": { "label": "Post ID", "format": "number" },
+                    "date": { "label": "Published", "format": "date" },
+                    "url": { "label": "Post", "format": "link" }
+                }
+            }
+        }
+    }
+}

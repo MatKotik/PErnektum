@@ -1,0 +1,23 @@
+{
+  "name": "telegram-channel-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Apify Actor that exports posts from public Telegram channels and monitors them for new posts.",
+  "type": "module",
+  "main": "src/main.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT",
+  "dependencies": {
+    "apify": "^3.7.2",
+    "cheerio": "^1.2.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0"
+  }
+}

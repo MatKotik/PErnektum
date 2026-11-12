@@ -1,0 +1,18 @@
+{
+    "actorSpecification": 1,
+    "name": "telegram-channel-scraper",
+    "title": "Telegram Channel Scraper & Monitor",
+    "description": "Export posts from public Telegram channels: text, views, reactions, media links, polls and forwards. Filter by date or keyword, or monitor channels and get only new posts on every run. No login, no API key.",
+    "version": "1.0",
+    "buildTag": "latest",
+    "defaultMemoryMbytes": 256,
+    "minMemoryMbytes": 128,
+    "maxMemoryMbytes": 1024,
+    "dockerfile": "../Dockerfile",
+    "readme": "../README.md",
+    "input": "./input_schema.json",
+    "output": "./output_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    }
+}

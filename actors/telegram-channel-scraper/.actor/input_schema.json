@@ -1,0 +1,86 @@
+{
+    "title": "Telegram Channel Scraper & Monitor",
+    "description": "Reads posts from public Telegram channels. Add one or more channels and press Start.",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "channels": {
+            "title": "Channels",
+            "type": "array",
+            "description": "Public Telegram channels to read. Enter a username (telegram), @username or a link (https://t.me/telegram). Private channels, groups, bots and invite links are not supported.",
+            "editor": "stringList",
+            "placeholderValue": "telegram",
+            "prefill": ["telegram"],
+            "minItems": 1
+        },
+        "maxPostsPerChannel": {
+            "title": "Maximum posts per channel",
+            "type": "integer",
+            "description": "The newest posts are returned first. The run stops reading a channel after this many posts.",
+            "default": 100,
+            "prefill": 20,
+            "minimum": 1,
+            "maximum": 1000000,
+            "unit": "posts"
+        },
+        "postsFrom": {
+            "title": "Posts from",
+            "type": "string",
+            "description": "Only posts published on or after this moment. Pick a date (2026-01-31) or a period counted back from now (7 days, 2 weeks, 1 month).",
+            "editor": "datepicker",
+            "dateType": "absoluteOrRelative",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])(T.*)?$|^(\\d+)\\s*(minute|hour|day|week|month|year)s?$"
+        },
+        "postsTo": {
+            "title": "Posts until",
+            "type": "string",
+            "description": "Only posts published on or before this date (the whole day is included). Leave empty to start from the newest post.",
+            "editor": "datepicker",
+            "dateType": "absolute",
+            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])(T.*)?$"
+        },
+        "keywords": {
+            "title": "Keywords",
+            "type": "array",
+            "description": "Return only posts that contain at least one of these words or phrases. Letter case is ignored and parts of words match, so update also finds updates. The whole channel is read within your date range, and you pay only for matching posts.",
+            "editor": "stringList",
+            "placeholderValue": "your brand"
+        },
+        "onlyNewPosts": {
+            "title": "Only new posts since the last run",
+            "type": "boolean",
+            "description": "Monitoring mode. The first run returns the newest posts. Every later run returns only posts published after the previous one. Combine it with a schedule to get a feed of new posts.",
+            "default": false,
+            "sectionCaption": "Monitoring",
+            "sectionDescription": "Turn the scraper into a monitor: schedule the run and receive only posts you have not seen yet."
+        },
+        "monitorId": {
+            "title": "Monitor name",
+            "type": "string",
+            "description": "Runs with the same monitor name share one memory of what was already delivered. Use different names when you track the same channel in several independent tasks.",
+            "editor": "textfield",
+            "default": "default",
+            "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "includeMarkdown": {
+            "title": "Add Markdown version of the text",
+            "type": "boolean",
+            "description": "Adds a \"markdown\" field that keeps bold, italic, quotes, code and link targets. Useful for LLM and RAG pipelines.",
+            "default": false,
+            "sectionCaption": "Output options"
+        },
+        "includeHtml": {
+            "title": "Add original HTML of the text",
+            "type": "boolean",
+            "description": "Adds an \"html\" field with the post body exactly as Telegram renders it.",
+            "default": false
+        },
+        "includeChannelDetails": {
+            "title": "Exact subscriber count",
+            "type": "boolean",
+            "description": "Loads the exact number of subscribers for each channel (one extra request per channel). When off, the rounded number from the preview page is used, for example 9140000 for 9.14M.",
+            "default": true
+        }
+    },
+    "required": ["channels"]
+}

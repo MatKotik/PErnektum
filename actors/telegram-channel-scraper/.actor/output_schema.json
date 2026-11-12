@@ -1,0 +1,19 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Telegram Channel Scraper & Monitor output",
+    "description": "Posts are stored in the default dataset, one item per post. A short report about every channel is stored in the key-value store.",
+    "properties": {
+        "posts": {
+            "type": "string",
+            "title": "Posts",
+            "description": "All scraped posts, newest first within each channel.",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        },
+        "summary": {
+            "type": "string",
+            "title": "Run summary",
+            "description": "Per-channel report: how many posts were saved, which channels have no public preview, and whether the spending limit was reached.",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/SUMMARY"
+        }
+    }
+}

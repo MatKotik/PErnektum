@@ -1,0 +1,9 @@
+node_modules
+storage
+apify_storage
+test
+.git
+.idea
+.vscode
+*.log
+assets
