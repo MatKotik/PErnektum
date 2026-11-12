@@ -19,10 +19,12 @@
 
    После слияния ветки в `main` замени адрес на `https://github.com/MatKotik/PErnektum#main:actors/telegram-channel-scraper`.
 3. Нажми **Build**, дождись сборки и запусти **Start** с вводом по умолчанию. В результате должно быть 20 постов канала `telegram`.
-4. Открой вкладку **Settings** и поменяй три вещи:
+4. Открой вкладку **Settings** и поменяй:
    - имя инструмента: `telegram-channel-scraper` (оно попадает в адрес страницы в магазине);
-   - память по умолчанию: 256 MB (памяти хватает с запасом, а плата за запуск считается от неё);
+   - заголовок: `Telegram Channel Scraper & Monitor`;
    - лимит времени по умолчанию: 3600 секунд (при 300 секундах большие выгрузки обрываются).
+
+   Память оставь 1 GB. На выгрузке 10 000 постов инструмент занимал до 250 MB, а стоимость памяти рядом с ценой результата незаметна.
 5. Открой вкладку **Publishing** и заполни:
    - **Display information.** Иконка: `telegram-channel-scraper/assets/icon.png`. Категории: Social media и News. Название и описание подставятся из кода.
    - **SEO title:** `Telegram Channel Scraper & Monitor – Export Posts, No Login`
