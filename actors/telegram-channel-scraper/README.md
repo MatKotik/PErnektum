@@ -57,9 +57,9 @@ If a channel published more new posts than **Maximum posts per channel** allows,
 You pay for results, not for time or memory:
 
 - **$0.50 per 1,000 posts**
-- **$0.003 per run**
+- **$0.00005 per run**, the standard Apify start fee
 
-Examples: the last 1,000 posts of a channel cost about $0.50. Checking 20 channels every hour and receiving 300 new posts a day costs about $0.22 a day. A monitoring run that finds nothing new costs only the start fee. Paid Apify plans get a lower price per post.
+Examples: the last 1,000 posts of a channel cost about $0.50. Checking 20 channels every hour and receiving 300 new posts a day costs about $0.15 a day. A monitoring run that finds nothing new costs $0.00005. Paid Apify plans get a lower price per post.
 
 You can cap spending with **Maximum cost per run** in the run options. The Actor stops as soon as the cap is reached and reports it in the run summary.
 
@@ -193,4 +193,4 @@ Open the **Issues** tab and describe the channel and the input you used. Issues 
 - Включите **Only new posts since the last run** и поставьте запуск по расписанию, чтобы получать только новые посты.
 - Результат доступен в JSON, CSV, Excel и через API.
 
-Цена: $0.50 за 1000 постов и $0.003 за запуск. Закрытые каналы, группы и комментарии не поддерживаются.
+Цена: $0.50 за 1000 постов, запуск стоит $0.00005. Закрытые каналы, группы и комментарии не поддерживаются.
