@@ -20,7 +20,7 @@
    После слияния ветки в `main` замени адрес на `https://github.com/MatKotik/PErnektum#main:actors/telegram-channel-scraper`.
 3. Нажми **Build**, дождись сборки и запусти **Start** с вводом по умолчанию. В результате должно быть 20 постов канала `telegram`.
 4. Открой вкладку **Settings** и поменяй:
-   - имя инструмента: `telegram-channel-scraper` (оно попадает в адрес страницы в магазине);
+   - имя инструмента: `telegram-channel-posts-monitor`. Оно попадает в адрес страницы в магазине и меняется через **⋯ → Edit name or description → Unique name**. Имя `telegram-channel-scraper` брать не стоит: его уже носят 197 инструментов, а Apify предупреждает, что страницы с одинаковыми адресами хуже находятся в поиске;
    - заголовок: `Telegram Channel Scraper & Monitor`;
    - лимит времени по умолчанию: 3600 секунд (при 300 секундах большие выгрузки обрываются).
 

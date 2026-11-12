@@ -139,7 +139,7 @@ A short report for every channel (posts saved, channels without a public preview
 ## Use it from code
 
 ```bash
-curl "https://api.apify.com/v2/acts/<username>~telegram-channel-scraper/run-sync-get-dataset-items?token=<YOUR_API_TOKEN>" \
+curl "https://api.apify.com/v2/acts/<username>~telegram-channel-posts-monitor/run-sync-get-dataset-items?token=<YOUR_API_TOKEN>" \
   -X POST -H "Content-Type: application/json" \
   -d '{ "channels": ["telegram"], "maxPostsPerChannel": 50 }'
 ```

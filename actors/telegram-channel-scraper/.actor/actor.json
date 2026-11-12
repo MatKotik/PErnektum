@@ -1,6 +1,6 @@
 {
     "actorSpecification": 1,
-    "name": "telegram-channel-scraper",
+    "name": "telegram-channel-posts-monitor",
     "title": "Telegram Channel Scraper & Monitor",
     "description": "Export posts from public Telegram channels: text, views, reactions, media links, polls and forwards. Filter by date or keyword, or monitor channels and get only new posts on every run. No login, no API key.",
     "version": "1.0",
