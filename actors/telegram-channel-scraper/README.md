@@ -172,6 +172,10 @@ Posts contain direct links to photos, video files and thumbnails. These are Tele
 
 Telegram does not show every kind of content on the web, for example live streams and paid media. For such posts you still get the link, date, views and reactions.
 
+### Why did the run stop before it finished?
+
+Every run has a time limit (**Run options → Timeout**). About 30 seconds before it, the Actor stops, keeps everything it has saved and explains the reason in the status message and in the summary. Raise the timeout and start again, or press **Resurrect** on the finished run: it continues where it stopped and does not return the same posts twice.
+
 ### Is it legal to scrape Telegram?
 
 The Actor reads only what Telegram publishes for everyone without logging in. You are responsible for how you use the data. Posts can contain personal data, which is protected by laws such as the GDPR, so collect it only when you have a legitimate reason.

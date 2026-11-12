@@ -4,7 +4,7 @@
 
 | Папка | Что делает | Состояние |
 | --- | --- | --- |
-| `telegram-channel-scraper` | Выгружает посты публичных Telegram-каналов, фильтрует их по ключевым словам и следит за новыми | Код готов, 61 автотест, проверен на 1440 реальных постах. Не опубликован |
+| `telegram-channel-scraper` | Выгружает посты публичных Telegram-каналов, фильтрует их по ключевым словам и следит за новыми | Код готов, 65 автотестов, проверен на 1440 реальных постах. Не опубликован |
 
 ## Как опубликовать инструмент
 
@@ -19,7 +19,11 @@
 
    После слияния ветки в `main` замени адрес на `https://github.com/MatKotik/PErnektum#main:actors/telegram-channel-scraper`.
 3. Нажми **Build**, дождись сборки и запусти **Start** с вводом по умолчанию. В результате должно быть 20 постов канала `telegram`.
-4. Открой вкладку **Publication** и заполни:
+4. Открой вкладку **Settings** и поменяй три вещи:
+   - имя инструмента: `telegram-channel-scraper` (оно попадает в адрес страницы в магазине);
+   - память по умолчанию: 256 MB (памяти хватает с запасом, а плата за запуск считается от неё);
+   - лимит времени по умолчанию: 3600 секунд (при 300 секундах большие выгрузки обрываются).
+5. Открой вкладку **Publishing** и заполни:
    - **Display information.** Иконка: `telegram-channel-scraper/assets/icon.png`. Категории: Social media и News. Название и описание подставятся из кода.
    - **SEO title:** `Telegram Channel Scraper & Monitor – Export Posts, No Login`
    - **SEO description:** `Scrape public Telegram channels: posts, views, reactions, media and polls. Monitor channels for new posts. No API key. $0.50 per 1,000 posts.`
@@ -32,8 +36,8 @@
 
      Минимальный лимит расходов на запуск: $0.01.
    - **Actor permissions:** Limited.
-5. В **Settings → Payouts** пройди проверку личности и укажи способ вывода (PayPal или Wise от $20, банк от $100).
-6. Нажми **Publish on Store**.
+6. В **Settings → Payouts** пройди проверку личности и укажи способ вывода (PayPal или Wise от $20, банк от $100).
+7. Нажми **Publish on Store**.
 
 Цены в таблице совпадают с теми, что написаны в описании инструмента. Если меняешь цену, поправь раздел «How much does it cost» в `telegram-channel-scraper/README.md`.
 

@@ -18,6 +18,8 @@ const MONITOR_STORE_NAME = 'telegram-channel-scraper-monitor';
 const CHANNEL_CONCURRENCY = 4;
 const REQUESTS_PER_SECOND = 5;
 const STATUS_UPDATE_INTERVAL_MS = 5_000;
+/** Stop this long before the run's time limit, so the report and the monitoring memory are saved in time. */
+const TIMEOUT_MARGIN_MS = 30_000;
 
 async function main() {
     const settings = readInput((await Actor.getInput()) ?? {});
@@ -33,6 +35,11 @@ async function main() {
             return Infinity;
         }
     };
+
+    // The platform kills a run at its time limit. Stopping a little earlier keeps the results, the report and the state intact.
+    const { timeoutAt } = Actor.getEnv();
+    const deadline = timeoutAt ? timeoutAt.getTime() - TIMEOUT_MARGIN_MS : null;
+    const outOfTime = () => deadline !== null && Date.now() >= deadline;
 
     // Survives restarts and migrations of the run, so that nothing is delivered (and charged) twice.
     const progress = await Actor.useState('PROGRESS', { channels: {} });
@@ -58,6 +65,7 @@ async function main() {
     const summary = [];
     let finished = 0;
     let lastStatusAt = 0;
+    let timedOut = false;
 
     await runWithConcurrency(channels, CHANNEL_CONCURRENCY, async ({ input, username }) => {
         const key = stateKey(username);
@@ -72,8 +80,15 @@ async function main() {
             finished++;
             return;
         }
+        if (outOfTime()) {
+            summary.push({ input, channel: username, status: 'skipped', posts: saved?.pushed ?? 0, note: 'Run time limit reached before this channel was finished.' });
+            finished++;
+            return;
+        }
 
-        const lastSeenId = onlyNewPosts ? (monitorState.channels[key]?.lastPostId ?? null) : null;
+        // A continued run keeps the lower bound it started with, even if the monitoring memory moved on meanwhile.
+        const rememberedId = onlyNewPosts ? (monitorState.channels[key]?.lastPostId ?? null) : null;
+        const lastSeenId = saved && 'lastSeenId' in saved ? saved.lastSeenId : rememberedId;
         let entry;
         try {
             const result = await scrapeChannel({
@@ -88,7 +103,8 @@ async function main() {
                 includeHtml: settings.includeHtml,
                 includeChannelDetails: settings.includeChannelDetails,
                 pushPosts: pusher.push,
-                onProgress: (state) => { progress.channels[key] = { ...state, done: false }; },
+                onProgress: (state) => { progress.channels[key] = { ...state, lastSeenId, done: false }; },
+                shouldStop: outOfTime,
                 rateLimiter,
                 log,
             });
@@ -103,8 +119,9 @@ async function main() {
                 subscribers: result.subscribers,
             };
 
-            // Remember where we stopped, unless the spending limit cut the channel off before anything was delivered.
-            const nothingDelivered = result.stopReason === 'budget' && result.pushed === 0;
+            // Remember where we stopped, unless the channel was cut off before anything was delivered.
+            const cutOff = result.stopReason === 'budget' || result.stopReason === 'timeout';
+            const nothingDelivered = cutOff && result.pushed === 0;
             if (onlyNewPosts && result.newestSeenId != null && !nothingDelivered) {
                 monitorState.channels[key] = { lastPostId: Math.max(result.newestSeenId, lastSeenId ?? 0), updatedAt: new Date().toISOString() };
                 monitorDirty = true;
@@ -130,7 +147,12 @@ async function main() {
         }
 
         summary.push(entry);
-        progress.channels[key] = { ...(progress.channels[key] ?? {}), done: true, summary: entry };
+        // A channel cut off by the time limit stays open, so resurrecting the run continues it instead of skipping it.
+        if (entry.stopReason === 'timeout') {
+            timedOut = true;
+        } else {
+            progress.channels[key] = { ...(progress.channels[key] ?? {}), done: true, summary: entry };
+        }
         finished++;
         if (entry.status === 'ok') {
             log.info(`${entry.channel}: ${entry.posts} post(s)${onlyNewPosts && lastSeenId != null ? ' new since the last run' : ''}.`);
@@ -156,6 +178,7 @@ async function main() {
         rejectedInputs: rejected.length,
         posts: totalPosts,
         spendingLimitReached: pusher.exhausted,
+        timeLimitReached: timedOut || summary.some((item) => item.note?.startsWith('Run time limit')),
     };
     await Actor.setValue('SUMMARY', { totals, channels: summary, rejectedInputs: rejected });
 
@@ -163,6 +186,7 @@ async function main() {
     if (totals.unavailable) parts.push(`${totals.unavailable} channel(s) have no public preview.`);
     if (totals.failed) parts.push(`${totals.failed} channel(s) failed.`);
     if (pusher.exhausted) parts.push('Stopped early: the maximum cost per run was reached.');
+    if (totals.timeLimitReached) parts.push('Stopped early: the run time limit was reached. Raise the timeout in the run options, or resurrect this run to continue where it stopped.');
     const message = parts.join(' ');
 
     // Fail only when nothing worked for a technical reason, so the user knows a retry makes sense.

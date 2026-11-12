@@ -11,7 +11,7 @@ import { fetchChannelAbout, walkChannel } from './telegram.js';
  * @property {number | null} subscribers
  * @property {number} pushed             posts delivered in total (including a resumed part)
  * @property {number | null} newestSeenId
- * @property {'end' | 'limit' | 'date' | 'seen' | 'budget'} stopReason
+ * @property {'end' | 'limit' | 'date' | 'seen' | 'budget' | 'timeout'} stopReason
  */
 
 /**
@@ -28,6 +28,7 @@ import { fetchChannelAbout, walkChannel } from './telegram.js';
  * @param {boolean} [options.includeChannelDetails]
  * @param {(posts: object[]) => Promise<number>} options.pushPosts   returns how many posts were accepted
  * @param {(progress: { cursor: number | null, pushed: number, newestSeenId: number | null }) => void} [options.onProgress]
+ * @param {() => boolean} [options.shouldStop]     true when the run is about to hit its time limit
  * @param {import('./telegram.js').RateLimiter} [options.rateLimiter]
  * @param {typeof fetch} [options.fetchImpl]
  * @param {number} [options.retryBaseDelayMs]
@@ -48,6 +49,7 @@ export async function scrapeChannel({
     includeChannelDetails = true,
     pushPosts,
     onProgress = () => {},
+    shouldStop = () => false,
     rateLimiter,
     fetchImpl,
     retryBaseDelayMs,
@@ -69,6 +71,7 @@ export async function scrapeChannel({
     });
 
     if (pushed >= maxPosts) return result('limit');
+    if (shouldStop()) return result('timeout');
 
     const http = { rateLimiter, fetchImpl, retryBaseDelayMs, log };
     const pages = walkChannel({ channel, startBefore: cursor, includeMarkdown, includeHtml, ...http });
@@ -115,6 +118,7 @@ export async function scrapeChannel({
 
         if (stopReason) return result(stopReason);
         if (!page.hasMore) return result('end');
+        if (shouldStop()) return result('timeout');
     }
     return result('end');
 }

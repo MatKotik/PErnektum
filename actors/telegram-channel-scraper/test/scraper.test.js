@@ -135,6 +135,48 @@ test('stops when the spending limit accepts only part of a batch', async () => {
     assert.equal(result.stopReason, 'budget');
 });
 
+test('stops between pages when the run is about to hit its time limit', async () => {
+    let pagesDone = 0;
+    const { result, ids, progress } = await scrape({
+        maxPosts: 1000,
+        onProgress: () => { pagesDone++; },
+        shouldStop: () => pagesDone >= 2,
+    }, { total: 100 });
+
+    assert.deepEqual(ids, range(100, 61));
+    assert.equal(result.stopReason, 'timeout');
+    assert.equal(result.pushed, 40);
+    assert.equal(result.newestSeenId, 100);
+    assert.deepEqual(progress, []);
+});
+
+test('a channel stopped by the time limit continues from the same place', async () => {
+    const resumed = await scrape({ maxPosts: 1000, resume: { cursor: 61, pushed: 40, newestSeenId: 100 } }, { total: 100 });
+
+    assert.deepEqual(resumed.ids, range(60, 1));
+    assert.equal(resumed.result.pushed, 100);
+    assert.equal(resumed.result.stopReason, 'end');
+});
+
+test('does not start a channel when the time is already up', async () => {
+    const { result, ids, calls } = await scrape({ shouldStop: () => true }, { total: 100 });
+
+    assert.deepEqual(ids, []);
+    assert.equal(result.stopReason, 'timeout');
+    assert.deepEqual(calls, []);
+});
+
+test('the natural end of a channel wins over the time limit', async () => {
+    const { result, ids } = await scrape({ shouldStop: () => true, resume: null, maxPosts: 5, lastSeenId: null }, { total: 100 });
+    assert.equal(result.stopReason, 'timeout');
+    assert.deepEqual(ids, []);
+
+    let asked = 0;
+    const finished = await scrape({ maxPosts: 1000, shouldStop: () => { asked++; return asked > 1; } }, { total: 15 });
+    assert.deepEqual(finished.ids, range(15, 1));
+    assert.equal(finished.result.stopReason, 'end');
+});
+
 test('keywords keep only matching posts, across the whole channel, and say what matched', async () => {
     const mentions = { 5: 'A Privacy note', 17: 'new UPDATES today', 42: 'privacy and update', 77: 'nothing here', 90: 'Обновление приложения' };
     const { result, delivered, calls } = await scrape(
