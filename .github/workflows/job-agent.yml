@@ -19,9 +19,6 @@ on:
           - run            # обычный запуск
           - dry-run        # показать в логе, что нашлось, ничего не отправляя
           - test-telegram  # прислать тестовое сообщение
-  push:
-    branches: [ccr-328b4b66-nw5fzo]
-    paths: ["job-agent/**", ".github/workflows/job-agent.yml"]
 
 permissions:
   contents: read
@@ -63,12 +60,11 @@ jobs:
           SUPERJOB_API_KEY: ${{ secrets.SUPERJOB_API_KEY }}
           HH_ACCESS_TOKEN: ${{ secrets.HH_ACCESS_TOKEN }}
           JOB_AGENT_OVERRIDES: ${{ secrets.JOB_AGENT_OVERRIDES }}
-          MODE: ${{ github.event_name == 'push' && 'force-run' || inputs.mode || 'run' }}
+          MODE: ${{ inputs.mode || 'run' }}
         run: |
           case "$MODE" in
             test-telegram) python -m jobagent --test-telegram ;;
             dry-run)       python -m jobagent --dry-run --preview 2 ;;
-            force-run)     python -m jobagent --force ;;
             *)             python -m jobagent ;;
           esac
 
