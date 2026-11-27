@@ -73,6 +73,17 @@ def main(argv: list[str] | None = None) -> int:
         log.info("Тестовое сообщение отправлено")
         return 0
 
+    in_github = os.environ.get("GITHUB_ACTIONS") == "true"
+    has_telegram = bool(os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+                        and os.environ.get("TELEGRAM_CHAT_ID", "").strip())
+    if in_github and not has_telegram and not args.dry_run:
+        # Без секретов вакансии ушли бы в лог и считались «отправленными» — лучше подождать.
+        msg = ("Не заданы секреты TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID "
+               "(Settings → Secrets and variables → Actions). Агент ждёт, пока их добавят.")
+        print(f"::warning title=Job Agent::{msg}")
+        log.warning(msg)
+        return 0
+
     cfg = load_config(args.config)
     http = HttpClient()
     only = {s.strip() for s in args.only.split(",") if s.strip()} or None

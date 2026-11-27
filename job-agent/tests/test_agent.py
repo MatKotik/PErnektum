@@ -170,3 +170,14 @@ def test_real_config_builds(monkeypatch):
     remotive = next(s for s in build_sources(c, None) if s.name == "remotive")
     assert remotive.interval == 360  # общий интервал не ускоряет «вежливые» источники
     assert deep_merge({"a": {"b": 1, "c": 2}}, {"a": {"b": 3}}) == {"a": {"b": 3, "c": 2}}
+
+
+def test_github_run_waits_for_telegram_secrets(monkeypatch, tmp_path, capsys):
+    from jobagent.__main__ import main
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
+    state = tmp_path / "state.json"
+    assert main(["--state", str(state)]) == 0
+    assert "::warning" in capsys.readouterr().out
+    assert not state.exists()  # ничего не опрашивал и не запоминал
