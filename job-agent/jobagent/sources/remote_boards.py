@@ -54,7 +54,8 @@ class Remotive(Source):
                 location=job.get("candidate_required_location") or "Remote",
                 salary=job.get("salary") or "",
                 description=html_to_text(job.get("description")),
-                tags=list(job.get("tags") or []) + ([job["category"]] if job.get("category") else []),
+                tags=list(job.get("tags") or []) + [t for t in (job.get("category"),
+                     (job.get("job_type") or "").replace("_", " ")) if t],
                 published=parse_date(job.get("publication_date")),
                 remote=True,
             ))
@@ -110,7 +111,8 @@ class Himalayas(Source):
                 location=", ".join(job.get("locationRestrictions") or []) or "Remote",
                 salary=format_salary(job.get("minSalary"), job.get("maxSalary"), job.get("currency")),
                 description=html_to_text(job.get("excerpt") or job.get("description")),
-                tags=list(job.get("categories") or []) + list(job.get("seniority") or []),
+                tags=list(job.get("categories") or []) + list(job.get("seniority") or [])
+                     + ([job["employmentType"]] if job.get("employmentType") else []),
                 published=parse_date(job.get("pubDate")),
                 remote=True,
             ))
