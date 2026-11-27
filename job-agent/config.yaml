@@ -111,6 +111,7 @@ filters:
     - лайк                 # «лайкать посты/отзывы за деньги»
     - "re:\\berid\\b"       # рекламные посты в Telegram
     - "#реклама"
+    - "re:не (подразумева|предполага|рассматрива)\\w* (подработ|частичн|совмещ)"  # «вакансия не подразумевает подработку»
   exclude_in: [title, description, tags, company]
 
   search_in: [title, tags, description, company]
@@ -135,7 +136,8 @@ sources:
     remote: true           # только «можно удалённо»
   trudvsem:                # «Работа России», госбаза вакансий по всей стране
     enabled: true
-    pages: 5               # удалёнки мало, поэтому листаем 5 страниц по 100
+    query: "удаленная"     # их поиск находит «Дистанционная (удаленная) работа» и «(удаленно)»
+    pages: 3
   superjob:                # много подработки для студентов; нужен бесплатный ключ → секрет SUPERJOB_API_KEY
     enabled: false
     remote: true
@@ -146,16 +148,22 @@ sources:
     enabled: false
 
   # --- международные (на английском), только part-time ---
+  # only_locations — пропускать только вакансии без привязки к стране (не «US Only», не «Germany»)
   remoteok:
     enabled: true
+    only_locations: &worldwide [anywhere, worldwide, "re:\\bworld\\b", global, "re:^remote$", russia, "re:\\bcis\\b"]
   weworkremotely:
     enabled: true
+    only_locations: *worldwide
   remotive:
     enabled: true
+    only_locations: *worldwide
   himalayas:
     enabled: true
+    only_locations: *worldwide
   jobicy:
     enabled: true
+    only_locations: *worldwide
   arbeitnow:               # Германия, обычно нужен немецкий
     enabled: false
 

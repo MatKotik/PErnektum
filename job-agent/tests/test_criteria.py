@@ -71,3 +71,30 @@ def test_hint_is_shown_in_message(real):
     v = vac("Оператор чата", "Удаленная работа, гибкий график, без опыта")
     v.match_hint = real.hint(v)
     assert "✅ гибкий график · без опыта" in format_vacancy(v)
+
+
+def test_negated_part_time_is_rejected(real):
+    v = vac("Интервьюер (удаленно)", "Удаленно. Вакансия не подразумевает подработку. Без опыта.")
+    assert real.rejection_reason(v) is not None
+
+
+def test_only_locations_per_source(tmp_path):
+    from jobagent.agent import run_once
+    from jobagent.notify import ConsoleNotifier
+    from jobagent.sources.base import Source
+    from jobagent.storage import State
+
+    class Board(Source):
+        kind = "board"
+
+        def fetch(self):
+            return [Vacancy(source="board", id=loc, title=f"Job {loc}", url=f"https://x/{loc}",
+                            location=loc, remote=True, published=NOW)
+                    for loc in ["Anywhere in the World", "USA Only", "Worldwide", "Germany", "Remote", ""]]
+
+    src = Board(None, {"only_locations": ["anywhere", "worldwide", "re:^remote$"]})
+    out = ConsoleNotifier()
+    rep = run_once({"agent": {"first_run": "send"}}, [src], State(tmp_path / "s.json"), out, force=True)
+    sent = {line for m in out.sent for line in m.splitlines() if line.startswith("<b>")}
+    assert sent == {"<b>Job Anywhere in the World</b>", "<b>Job Worldwide</b>", "<b>Job Remote</b>", "<b>Job </b>"}
+    assert rep.sources[0].fetched == 6

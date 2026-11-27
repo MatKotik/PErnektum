@@ -6,7 +6,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 
-from .filters import Filters
+from .filters import Filters, _compile_all, _norm
 from .models import Vacancy
 from .notify import Notifier, TelegramError, esc
 from .sources import Source, SourceConfigError
@@ -88,6 +88,10 @@ def run_once(cfg: dict, sources: list[Source], state: State, notifier: Notifier,
             continue
 
         rep.fetched = len(items)
+        allowed = _compile_all(src.options.get("only_locations"))
+        if allowed:  # напр. для зарубежных сайтов — только «Anywhere/Worldwide», без «US Only»
+            items = [v for v in items
+                     if not v.location.strip() or any(p.search(_norm(v.location)) for p in allowed)]
         matched = [v for v in items if v.url and filters.matches(v)]
         for v in matched:
             v.match_hint = filters.hint(v)
