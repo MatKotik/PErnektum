@@ -22,17 +22,26 @@ class Trudvsem(Source):
         url = f"{base}/region/{region}" if region else base
         since = datetime.now(timezone.utc) - timedelta(days=float(self.options.get("days", 2)))
         params = {
-            "offset": 0,
             "limit": min(self.limit, 100),
             "modifiedFrom": since.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
         if self.query:
             params["text"] = self.query
-        data = self.http.get_json(url, params=params)
-        rows = ((data.get("results") or {}).get("vacancies")) or []
+        rows = []
+        # удалёнки среди свежих вакансий мало, поэтому можно пролистать несколько страниц
+        for page in range(max(1, int(self.options.get("pages", 1)))):
+            data = self.http.get_json(url, params={**params, "offset": page})
+            batch = ((data.get("results") or {}).get("vacancies")) or []
+            rows.extend(batch)
+            if len(batch) < params["limit"]:
+                break
         out = []
+        seen_ids: set[str] = set()
         for row in rows:
             job = row.get("vacancy") or row
+            if not job.get("id") or job["id"] in seen_ids:
+                continue
+            seen_ids.add(job["id"])
             schedule = join_nonempty(job.get("schedule"), job.get("employment"))
             addresses = ((job.get("addresses") or {}).get("address")) or []
             location = (job.get("region") or {}).get("name") or ""
@@ -40,6 +49,7 @@ class Trudvsem(Source):
                 location = addresses[0]["location"]
             duty = html_to_text(job.get("duty"))
             req = job.get("requirement") or {}
+            low = schedule.lower().replace("ё", "е")
             out.append(self.vacancy(
                 id=job.get("id"),
                 title=html_to_text(job.get("job-name")),
@@ -51,7 +61,7 @@ class Trudvsem(Source):
                 description=join_nonempty(duty, html_to_text(req.get("qualification")), sep="\n"),
                 tags=[t for t in [((job.get("category") or {}).get("specialisation")), schedule] if t],
                 published=parse_date(job.get("creation-date")),
-                remote="удален" in schedule.lower().replace("ё", "е"),
+                remote="удален" in low or "дистанц" in low,
             ))
         return out
 

@@ -30,6 +30,8 @@ def format_vacancy(v: Vacancy, snippet_len: int = 350) -> str:
     )
     if meta:
         lines.append(meta)
+    if v.match_hint:
+        lines.append("✅ " + esc(v.match_hint))
     if v.tags:
         lines.append("🏷 " + esc(", ".join(v.tags[:8])))
     if v.description and snippet_len > 0:

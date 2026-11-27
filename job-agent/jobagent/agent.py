@@ -89,6 +89,8 @@ def run_once(cfg: dict, sources: list[Source], state: State, notifier: Notifier,
 
         rep.fetched = len(items)
         matched = [v for v in items if v.url and filters.matches(v)]
+        for v in matched:
+            v.match_hint = filters.hint(v)
         rep.matched = len(matched)
         rep.samples = matched[:preview]
         fresh = [v for v in matched if not state.is_seen(v.key, _fp(v))]

@@ -28,6 +28,7 @@ class Vacancy:
     published: datetime | None = None  # всегда timezone-aware (UTC), если известно
     remote: bool | None = None
     source_title: str = ""  # человекочитаемое имя источника для сообщения
+    match_hint: str = ""    # что именно совпало с критериями (показываем в сообщении)
 
     @property
     def key(self) -> str:
