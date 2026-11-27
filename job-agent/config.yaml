@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Настройки агента поиска работы
+#  Меняешь этот файл → коммитишь → со следующего запуска агент работает по-новому.
+# ─────────────────────────────────────────────────────────────────────────────
+
+agent:
+  interval_minutes: 20     # как часто опрашивать сайты (на GitHub Actions задаётся ещё и в cron)
+  max_per_run: 25          # больше вакансий за один раз не присылать (остальные — одной строкой)
+  first_run: silent        # silent — на первом запуске только запомнить текущие вакансии,
+                           #          присылать начиная со следующих новых
+                           # send   — сразу прислать свежие (до max_per_run штук)
+  snippet_length: 350      # сколько символов описания показывать в сообщении
+  alert_after_failures: 6  # предупредить в Telegram, если сайт не отвечает N раз подряд
+  remember_days: 60        # сколько дней помнить отправленные (чтобы не повторяться)
+
+# ── Критерии ─────────────────────────────────────────────────────────────────
+# Пока пусто — агент присылает ВСЁ новое со всех сайтов (будет много!).
+search:
+  query: ""                # что вписывать в поиск на сайтах, где он есть, напр. "python"
+
+filters:
+  keywords: []             # должно встретиться хотя бы одно, напр. [python, django, "бэкенд"]
+  exclude_keywords: []     # если встретилось — вакансия отбрасывается, напр. [senior, lead, 1с]
+  search_in: [title, tags, description, company]  # где искать keywords
+  exclude_in: [title, company]                    # где искать exclude_keywords
+  remote_only: false       # только удалёнка (там, где сайт это указывает)
+  require_salary: false    # только с указанной зарплатой
+  max_age_days: 7          # не присылать вакансии старше N дней
+
+# ── Сайты ────────────────────────────────────────────────────────────────────
+# enabled: false — выключить. interval_minutes / query — можно задать отдельно для сайта.
+sources:
+  # --- русскоязычные ---
+  habr_career:             # Хабр Карьера (IT)
+    enabled: true
+  trudvsem:                # «Работа России», госбаза вакансий по всей стране
+    enabled: true
+    # region: "7700000000000"   # код региона (Москва); без него — вся Россия
+  telegram:                # публичные каналы с вакансиями (имя без @)
+    enabled: true
+    channels:
+      - geekjobs           # IT и менеджмент
+      - jobforjunior       # стажировки и джуны
+      - normrabota         # контент, маркетинг, НКО
+      - digital_jobster    # маркетинг, SMM, digital
+      # - forfrontend      # фронтенд
+  superjob:                # нужен бесплатный ключ → секрет SUPERJOB_API_KEY
+    enabled: false
+    # town: Москва
+    # remote: true
+  hh:                      # hh.ru: с 2026 г. API только с токеном → секрет HH_ACCESS_TOKEN
+    enabled: false
+    # area: 113             # 113 — вся Россия, 1 — Москва, 2 — СПб
+    # remote: true
+  dou:                     # DOU.ua (Украина, IT)
+    enabled: false
+
+  # --- международные, удалёнка ---
+  remoteok:
+    enabled: true
+  weworkremotely:
+    enabled: true
+  remotive:
+    enabled: true
+  himalayas:
+    enabled: true
+  jobicy:
+    enabled: true
+  arbeitnow:               # в основном Германия/Европа
+    enabled: true
+
+  # --- любые другие сайты с RSS-лентой ---
+  rss:
+    feeds: []
+    #  - name: my-feed
+    #    title: "Мой сайт"
+    #    url: "https://example.com/jobs.rss?q={query}"   # {query} заменится на search.query
