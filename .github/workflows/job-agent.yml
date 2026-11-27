@@ -50,7 +50,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore memory (already sent vacancies)
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: job-agent/state
           key: job-agent-state-${{ github.run_id }}
@@ -71,19 +71,27 @@ jobs:
             *)             python -m jobagent ;;
           esac
 
-      - name: "[temporary] probe extra sources"
-        if: github.event_name == 'push'
-        env:
-          JOB_AGENT_OVERRIDES: |
-            sources:
-              dou: {enabled: true}
-              telegram:
-                channels: [geekjobs, digital_jobster, normrabota, remote_it_jobs, forfrontend, myjobit, habr_career, workingincontent, jobforjunior, devops_jobs, javascript_jobs, python_jobs_ru]
-        run: python -m jobagent --dry-run --preview 1 --only dou,telegram
+      - name: "[temporary] probe telegram channels"
+        if: always() && github.event_name == 'push'
+        run: |
+          python - <<'PY'
+          from jobagent.http import HttpClient
+          from jobagent.sources.telegram_channels import parse_channel_page, _title_from_text
+          h = HttpClient()
+          for ch in "geekjobs digital_jobster normrabota remote_it_jobs forfrontend habr_career jobforjunior python_jobs_ru".split():
+              try:
+                  posts = parse_channel_page(h.get_text(f"https://t.me/s/{ch}"))
+              except Exception as e:
+                  print(ch, "ERR", e); continue
+              last = posts[-1] if posts else {}
+              print(f"{ch}: {len(posts)} posts, last {last.get('date','')[:10]}")
+              for p in posts[-3:]:
+                  print("   -", _title_from_text(p["text"])[:90])
+          PY
 
       - name: Save memory
         if: always() && hashFiles('job-agent/state/state.json') != ''
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: job-agent/state
           key: job-agent-state-${{ github.run_id }}-${{ github.run_attempt }}

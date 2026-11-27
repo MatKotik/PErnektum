@@ -105,11 +105,27 @@ class HabrCareer(RssSource):
     default_interval = 20
     url_template = "https://career.habr.com/vacancies/rss?q={query}&sort=date&type=all"
 
+    # заголовок в ленте: Требуется «Инженер ЦОД» (Ногинск, от 90 000 до 130 000 ₽)
+    _TITLE_RE = re.compile(r"^Требуется\s+«(?P<title>.+)»\s*(?:\((?P<extra>.*)\))?\s*$")
+    _SALARY_RE = re.compile(r"^(от|до)\s|[₽$€]|руб", re.IGNORECASE)
+
     def feed_url(self) -> str:
         url = super().feed_url()
         if self.options.get("remote"):
             url += "&remote=true"
         return url
+
+    def convert(self, item):
+        v = super().convert(item)
+        if v:
+            m = self._TITLE_RE.match(v.title)
+            if m:
+                v.title = m.group("title").strip()
+                parts = [p.strip() for p in (m.group("extra") or "").split(", ") if p.strip()]
+                v.salary = ", ".join(p for p in parts if self._SALARY_RE.search(p))
+                v.location = ", ".join(p for p in parts if not self._SALARY_RE.search(p))
+            v.remote = "удал" in f"{v.location} {v.description}".lower()
+        return v
 
 
 @register

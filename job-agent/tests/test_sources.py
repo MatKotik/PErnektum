@@ -217,3 +217,39 @@ def test_telegram_requires_channels():
     src, _ = make("telegram", {}, options={"channels": []})
     with pytest.raises(SourceConfigError):
         src.check_ready()
+
+
+HABR_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel>
+<item><title>Требуется «Инженер ЦОД» (Ногинск, от 90 000 до 130 000 ₽)</title>
+<link>https://career.habr.com/vacancies/1</link><guid>https://career.habr.com/vacancies/1</guid>
+<dc:creator>Ростелеком</dc:creator><pubDate>Thu, 27 Nov 2026 14:58:00 +0000</pubDate>
+<description>Компания ищет... Полный рабочий день.</description></item>
+<item><title>Требуется «Python-разработчик (Django)» (Можно удалённо)</title>
+<link>https://career.habr.com/vacancies/2</link><dc:creator>Кто-то</dc:creator>
+<description>Можно удалённо.</description></item>
+</channel></rss>"""
+
+
+def test_habr_career_title_split():
+    src, _ = make("habr_career", {"https://career.habr.com": HABR_RSS})
+    a, b = src.fetch()
+    assert (a.title, a.company, a.location, a.salary) == (
+        "Инженер ЦОД", "Ростелеком", "Ногинск", "от 90 000 до 130 000 ₽")
+    assert a.remote is False
+    assert (b.title, b.location, b.remote) == ("Python-разработчик (Django)", "Можно удалённо", True)
+
+
+def test_preescaped_and_mojibake_text_is_cleaned():
+    src, _ = make("remoteok", {"https://remoteok.com/api": [
+        {"id": "1", "position": "Sales &amp; Ops", "company": "A&amp;B",
+         "description": "Â About the team", "tags": ["R&amp;D"], "url": "https://x/1"}]})
+    [v] = src.fetch()
+    assert (v.title, v.company, v.tags) == ("Sales & Ops", "A&B", ["R&D"])
+    assert v.description == "About the team"
+
+
+def test_telegram_title_strips_leading_emoji():
+    from jobagent.sources.telegram_channels import _title_from_text
+    assert _title_from_text("🔹 Руководитель отдела\nещё") == "Руководитель отдела"
+    assert _title_from_text("#job\n🔥🔥 «Senior» QA") == "«Senior» QA"

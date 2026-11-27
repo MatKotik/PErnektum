@@ -12,6 +12,7 @@ from .base import Source, SourceConfigError, register
 log = logging.getLogger(__name__)
 
 _HASHTAG_RE = re.compile(r"#[\w]+", re.UNICODE)
+_LEADING_JUNK_RE = re.compile(r"^[^\w«\"(]+")  # эмодзи, маркеры списков в начале строки
 
 
 class _ChannelPageParser(HTMLParser):
@@ -79,7 +80,7 @@ def parse_channel_page(html_text: str) -> list[dict]:
 
 def _title_from_text(text: str) -> str:
     for line in text.split("\n"):
-        clean = _HASHTAG_RE.sub("", line).strip(" -—–|•·:")
+        clean = _LEADING_JUNK_RE.sub("", _HASHTAG_RE.sub("", line)).strip(" -—–|•·:")
         if len(clean) >= 4:
             return truncate(clean, 120)
     return truncate(text.replace("\n", " "), 120)
