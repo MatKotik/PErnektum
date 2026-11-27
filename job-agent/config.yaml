@@ -39,8 +39,11 @@ sources:
   telegram:                # публичные каналы с вакансиями (имя без @)
     enabled: true
     channels:
-      - geekjobs
-      - digital_jobster
+      - geekjobs           # IT и менеджмент
+      - jobforjunior       # стажировки и джуны
+      - normrabota         # контент, маркетинг, НКО
+      - digital_jobster    # маркетинг, SMM, digital
+      # - forfrontend      # фронтенд
   superjob:                # нужен бесплатный ключ → секрет SUPERJOB_API_KEY
     enabled: false
     # town: Москва
