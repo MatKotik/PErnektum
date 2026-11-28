@@ -125,7 +125,7 @@ filters:
 
   search_in: [title, tags, description, company]
   require_salary: false
-  max_age_days: 5          # не присылать вакансии старше N дней
+  max_age_days: 7          # не присылать вакансии старше N дней
 
 # ── Сайты ────────────────────────────────────────────────────────────────────
 # enabled: false — выключить. interval_minutes / query — можно задать отдельно для сайта.
