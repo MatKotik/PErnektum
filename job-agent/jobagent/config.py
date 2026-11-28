@@ -43,7 +43,9 @@ def build_sources(cfg: dict, http: HttpClient) -> list[Source]:
     query = ((cfg.get("search") or {}).get("query")) or ""
     default_interval = (cfg.get("agent") or {}).get("interval_minutes")
     sources: list[Source] = []
-    for kind, options in (cfg.get("sources") or {}).items():
+    for key, options in (cfg.get("sources") or {}).items():
+        # "habr_career:interns" — ещё одна лента того же сайта со своими настройками
+        kind = key.split(":", 1)[0]
         options = dict(options or {})
         if not options.get("enabled", True):
             continue
@@ -65,5 +67,5 @@ def build_sources(cfg: dict, http: HttpClient) -> list[Source]:
         if cls is None:
             log.warning("Неизвестный источник в config.yaml: %s (пропускаю)", kind)
             continue
-        sources.append(cls(http, options, query))
+        sources.append(cls(http, options, query, name=key))
     return sources

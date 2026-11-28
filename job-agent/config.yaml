@@ -52,7 +52,8 @@ filters:
       - "part time"
       - "re:flexible (working )?(hours|schedule)"
       - "freelance"
-      - "re:\\bintern(ship)?s?\\b"
+      - "#intern"            # метка стажировки на Хабре
+      - "re:^[^\\n]{0,80}\\bintern(ship)?\\b"   # intern/internship — только в названии
       - "student"
       - "entry level"
       - "entry-level"
@@ -111,6 +112,14 @@ filters:
     - лайк                 # «лайкать посты/отзывы за деньги»
     - "re:\\berid\\b"       # рекламные посты в Telegram
     - "#реклама"
+    # опыт: на Хабре уровень стоит меткой в навыках
+    - "#senior"
+    - "#lead"
+    - "#middle"
+    # английский выше B1
+    - "re:английск\\w*[^.\\n]{0,40}(b2|c1|c2|upper|advanced|fluent|свободн|продвинут)"
+    - "re:english[^.\\n]{0,40}(b2|c1|c2|upper|advanced|fluent|business)"
+    - "re:(свободн|продвинут)\\w* (владение )?английск"
     - "re:не (подразумева|предполага|рассматрива)\\w* (подработ|частичн|совмещ)"  # «вакансия не подразумевает подработку»
   exclude_in: [title, description, tags, company]
 
@@ -131,9 +140,13 @@ sources:
       - normrabota         # контент, маркетинг, НКО
       - digital_jobster    # маркетинг, SMM, digital
       - marketing_jobs     # маркетинг
-  habr_career:             # Хабр Карьера (IT)
+  habr_career:interns:     # Хабр Карьера: только стажировки (IT) — главный источник для тебя
     enabled: true
     remote: true           # только «можно удалённо»
+    qid: 1                 # 1 — стажёр, 3 — junior
+  habr_career:             # Хабр Карьера: все уровни, удалёнка
+    enabled: true
+    remote: true
   trudvsem:                # «Работа России», госбаза вакансий по всей стране
     enabled: true
     query: "удаленная"     # их поиск находит «Дистанционная (удаленная) работа» и «(удаленно)»
@@ -147,22 +160,22 @@ sources:
   dou:                     # DOU.ua (Украина, IT)
     enabled: false
 
-  # --- международные (на английском), только part-time ---
+  # --- международные (на английском) — выключены: там почти всё full-time и нужен английский B2+ ---
   # only_locations — пропускать только вакансии без привязки к стране (не «US Only», не «Germany»)
   remoteok:
-    enabled: true
+    enabled: false
     only_locations: &worldwide [anywhere, worldwide, "re:\\bworld\\b", global, "re:^remote$", russia, "re:\\bcis\\b"]
   weworkremotely:
-    enabled: true
+    enabled: false
     only_locations: *worldwide
   remotive:
-    enabled: true
+    enabled: false
     only_locations: *worldwide
   himalayas:
-    enabled: true
+    enabled: false
     only_locations: *worldwide
   jobicy:
-    enabled: true
+    enabled: false
     only_locations: *worldwide
   arbeitnow:               # Германия, обычно нужен немецкий
     enabled: false

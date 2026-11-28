@@ -162,7 +162,7 @@ def test_telegram_token_hidden_in_errors(monkeypatch):
 
 
 def test_real_config_builds(monkeypatch):
-    monkeypatch.setenv("JOB_AGENT_OVERRIDES", "filters:\n  keywords: [python]\nsources:\n  dou:\n    enabled: true\n")
+    monkeypatch.setenv("JOB_AGENT_OVERRIDES", "filters:\n  keywords: [python]\nsources:\n  dou:\n    enabled: true\n  remotive:\n    enabled: true\n")
     c = load_config("config.yaml")
     assert c["filters"]["keywords"] == ["python"] and c["filters"]["max_age_days"] == 5
     names = [s.name for s in build_sources(c, http=None)]

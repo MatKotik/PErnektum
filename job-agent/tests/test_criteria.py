@@ -98,3 +98,47 @@ def test_only_locations_per_source(tmp_path):
     sent = {line for m in out.sent for line in m.splitlines() if line.startswith("<b>")}
     assert sent == {"<b>Job Anywhere in the World</b>", "<b>Job Worldwide</b>", "<b>Job Remote</b>", "<b>Job </b>"}
     assert rep.sources[0].fetched == 6
+
+
+HABR_INTERNS = """<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>
+<item><title>Требуется «Разработчик .NET (Стажер)» (Москва)</title>
+<description>Компания «Лоция» ищет хорошего специалиста на вакансию «Разработчик .NET (Стажер)». Москва (Россия). Неполный рабочий день. Можно удалённо. Требуемые навыки: #intern, #C#.</description>
+<author>Лоция</author><pubDate>{d}</pubDate><link>https://career.habr.com/vacancies/1</link><guid>1</guid></item>
+<item><title>Требуется «Стажировка Python разработчик (FastAPI)» (от 40 000 до 60 000 ₽)</title>
+<description>Компания «Pulsea» ищет... От 40 000 ₽ до 60 000 ₽. Полный рабочий день. Можно удалённо. Требуемые навыки: #intern, #Python, #FastAPI.</description>
+<author>Pulsea</author><pubDate>{d}</pubDate><link>https://career.habr.com/vacancies/2</link><guid>2</guid></item>
+<item><title>Требуется «Начинающий специалист по работе с документами» (Санкт-Петербург)</title>
+<description>Компания «ИТ Контакт» ищет... Санкт-Петербург (Россия). Полный рабочий день. Требуемые навыки: #intern.</description>
+<author>ИТ Контакт</author><pubDate>{d}</pubDate><link>https://career.habr.com/vacancies/3</link><guid>3</guid></item>
+<item><title>Требуется «ML разработчик / Проектная работа»</title>
+<description>Компания «Extyl» ищет... Полный рабочий день. Можно удалённо. Требуемые навыки: #senior, #Python.</description>
+<author>Extyl</author><pubDate>{d}</pubDate><link>https://career.habr.com/vacancies/4</link><guid>4</guid></item>
+</channel></rss>"""
+
+
+def test_habr_interns_feed_with_real_criteria(real):
+    from email.utils import format_datetime
+    from jobagent.config import build_sources
+    from tests.test_sources import FakeHttp
+
+    xml = HABR_INTERNS.replace("{d}", format_datetime(NOW))
+    cfg = {"sources": {"habr_career:interns": {"remote": True, "qid": 1}}}
+    [src] = build_sources(cfg, FakeHttp({"https://career.habr.com": xml}))
+    assert src.name == "habr_career:interns" and src.feed_url().endswith("&remote=true&qid=1")
+    passed = [v.title for v in src.fetch() if real.matches(v)]
+    assert passed == ["Разработчик .NET (Стажер)", "Стажировка Python разработчик (FastAPI)"]
+
+
+@pytest.mark.parametrize("desc,ok", [
+    ("Удалённо, гибкий график. Английский B1 — плюс", True),
+    ("Удалённо, гибкий график. Английский язык на уровне B2 и выше", False),
+    ("Remote, part-time. English: Upper-Intermediate", False),
+    ("Удалённо, частичная занятость. Свободное владение английским", False),
+])
+def test_english_level(real, desc, ok):
+    assert (real.rejection_reason(vac("Стажёр-разработчик", desc)) is None) is ok
+
+
+def test_intern_word_counts_only_in_title(real):
+    assert real.matches(vac("Backend Intern", "Remote"))
+    assert not real.matches(vac("Backend Engineer", "Remote. We also run internships every summer."))
