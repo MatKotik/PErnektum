@@ -8,7 +8,8 @@ name: Job Agent
 
 on:
   schedule:
-    - cron: "*/20 * * * *"
+    # не ровно в :00 — в начале часа GitHub под нагрузкой пропускает запуски
+    - cron: "7,27,47 * * * *"
   workflow_dispatch:
     inputs:
       mode:

@@ -113,6 +113,8 @@ class HabrCareer(RssSource):
         url = super().feed_url()
         if self.options.get("remote"):
             url += "&remote=true"
+        if self.options.get("qid"):  # 1 — стажёр (intern), 3 — младший (junior)
+            url += f"&qid={int(self.options['qid'])}"
         return url
 
     def convert(self, item):
